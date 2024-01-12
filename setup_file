@@ -1,0 +1,9 @@
+mkdir data_files
+conda create -n vanilla_few -c conda-forge gcc_linux-64 gxx_linux-64 wget gsl lapack=3.6.1 hdf5 numpy Cython scipy tqdm jupyter ipython h5py requests matplotlib astropy python=3.9 
+conda activate vanilla_few
+
+pip install cupy-cuda11x
+pip install eryn
+
+
+
