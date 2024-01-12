@@ -1,3 +1,7 @@
+# Ignore .npy files .h5 files and .pdf, too big to push to git
+*.h5
+*.npy
+*.pdf
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
