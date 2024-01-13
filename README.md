@@ -14,19 +14,25 @@ source setup_file
 
 profit.
 
-## Install dependencies:
+## What does this do? 
 
-The code relies on codes to generate EMRIs (FEW), the lisa response (GPU accelerated lisa-on-gpu) and a code that generates the latest power spectral densities of the noise processes. The repositories below should be installed. 
+The script `setup_file` has been built for the lazy user in mind. Running `source setup_file` will
 
-[lisaAnalysistools](https://github.com/mikekatz04/LISAanalysistools.git)
-[lisa-on-gpu](https://github.com/mikekatz04/lisa-on-gpu.git)
-[FastEMRIWaveforms](https://github.com/BlackHolePerturbationToolkit/FastEMRIWaveforms.git)
+1. Build an conda environment vanilla_few with necessary python modules 
+2. Install a specific version of cupy for the GPUs here at CNES
+3. Install eryn, the sampler that I use for MCMC with EMRIs. 
+4. Create directory `Github_repos` to then clone (and install!) these three repositories 
+    a) [lisaAnalysistools](https://github.com/mikekatz04/LISAanalysistools.git)
+    b) [lisa-on-gpu](https://github.com/mikekatz04/lisa-on-gpu.git)
+    c) [FastEMRIWaveforms](https://github.com/BlackHolePerturbationToolkit/FastEMRIWaveforms.git)
 
-After activating your environment `conda activate vanilla_few` each of the above repositories should be installed within that environment. Simply run `python setup.py install` inside each repository.
+A user can (understandably) build the various conda environments or, if they already have FEW and lisa-on-gpu already on the cluster, they can just `python setup.py` install them separately.
 
 ## Code Structure
 
-The code has been set up such that only one file needs to be edited. This is `EMRI_settings.py`. 
+The code has been set up such that only one file needs to be edited. This is `EMRI_settings.py`. In this file there is a list of EMRI parameters that dictate the true EMRI signal to be inferred. 
+
+In `Cluster_sub/submit_job.sh`, there is a simple submit file one can use to submit jobs to the CNES clusters using the a100 GPUs. 
 
 
 python mcmc_run.py
