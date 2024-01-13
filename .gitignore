@@ -1,3 +1,5 @@
+# Ignore cloned repositories
+Github_Repos/
 # Ignore .npy files .h5 files and .pdf, too big to push to git
 *.h5
 *.npy
