@@ -33,6 +33,8 @@ echo Now installing FastEMRIWaveforms
 cd ../FastEMRIWaveforms
 python setup.py install
 
+echo Your installation is complete!
+
 
 
 
