@@ -4,6 +4,9 @@ Github_Repos/
 *.h5
 *.npy
 *.pdf
+# Ignore cluster specific files
+*.err
+*.out
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
