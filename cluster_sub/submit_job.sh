@@ -20,4 +20,5 @@ conda activate test_EMRI_env
 module load gcc/10.2.0
 module load cuda/11.7.0
 
-python /home/ad/burkeol/work/Parameter_Estimation_EMRIs/EMRI_PE/mcmc_code/mcmc_run.py
+
+
