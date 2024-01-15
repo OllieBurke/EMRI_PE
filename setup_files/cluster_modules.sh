@@ -1,4 +1,4 @@
 module load conda
-conda activate vanilla_few
+conda activate EMRI_PE_env
 module load gcc
 module load cuda

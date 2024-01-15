@@ -19,7 +19,7 @@ profit.
 
 The script `setup_file.sh` has been built for the lazy user in mind. Running `source setup_file` will
 
-1. Build an conda environment vanilla_few with necessary python modules 
+1. Build an conda environment `EMRI_PE_env` with necessary python modules 
 2. Install a specific version of cupy for the GPUs here at CNES
 3. Install eryn, the sampler that I use for MCMC with EMRIs. 
 4. Create directory `Github_repos` to then clone (and install!) these three repositories 
@@ -56,7 +56,7 @@ Once you have entered the job, you want to run the following commands:
 
 ```
 module load conda
-conda activate vanilla_few
+conda activate EMRI_PE_env
 module load gcc
 module load cuda
 ```

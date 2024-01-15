@@ -16,7 +16,7 @@
 module load conda
 module unload conda
 module load conda
-conda activate test_EMRI_env 
+conda activate EMRI_PE_env 
 module load gcc/10.2.0
 module load cuda/11.7.0
 

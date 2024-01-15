@@ -11,8 +11,8 @@ echo Loading conda module
 module load conda  # CNES cluster, need to load conda prior to using it
 
 echo Now creating environment      # Set up conda environment -- vanilla_few
-conda create -n test_EMRI_env -c conda-forge gcc_linux-64 gxx_linux-64 wget gsl lapack=3.6.1 hdf5 numpy Cython scipy tqdm jupyter ipython h5py requests matplotlib corner python=3.9 
-conda activate test_EMRI_env         
+conda create -n EMRI_PE_env -c conda-forge gcc_linux-64 gxx_linux-64 wget gsl lapack=3.6.1 hdf5 numpy Cython scipy tqdm jupyter ipython h5py requests matplotlib corner python=3.9 
+conda activate EMRI_PE_env         
 
 echo Installing cupy-cuda11x toolkit
 pip install cupy-cuda11x           # Warning: this is SPECIFIC to the CNES cluster for the GPUs available
