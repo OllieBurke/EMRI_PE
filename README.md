@@ -3,7 +3,7 @@
 
 Generic code used to estimate EMRI parameters. This is specific to the CNES cluster here in France. 
 
-Viva la France! 
+Vive la France! 
 
 ## Set up environments
 
