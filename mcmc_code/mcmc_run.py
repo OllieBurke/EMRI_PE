@@ -213,8 +213,9 @@ noise_f_AET_imag = [xp.random.normal(0,np.sqrt(variance_noise_AET[k])) for k in 
 noise_f_AET = xp.asarray([noise_f_AET_real[k] + 1j * noise_f_AET_imag[k] for k in range(N_channels)])
 
 # Dealing with positive transform, so first and last values are real. 
-noise_f_AET[0] = np.sqrt(2)*np.real(noise_f_AET) 
-noise_f_AET[-1] = np.sqrt(2)*np.real(noise_f_AET)
+# todo: fix
+#noise_f_AET[0] = np.sqrt(2)*np.real(noise_f_AET) 
+#noise_f_AET[-1] = np.sqrt(2)*np.real(noise_f_AET)
 
 data_f_AET = EMRI_AET_fft + 0*noise_f_AET   # define the data
 
