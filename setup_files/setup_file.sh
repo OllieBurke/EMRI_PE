@@ -17,6 +17,10 @@ conda activate test_EMRI_env
 echo Installing cupy-cuda11x toolkit
 pip install cupy-cuda11x           # Warning: this is SPECIFIC to the CNES cluster for the GPUs available
 
+module load gcc
+# Important to load cuda when installing the repos below! 
+module load cuda
+
 echo Installing eryn, sampler built off emcee. 
 pip install eryn                   # Install Eryn 
 
