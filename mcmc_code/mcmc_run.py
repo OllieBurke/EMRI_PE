@@ -71,7 +71,6 @@ def inner_prod(sig1_f,sig2_f,N_t,delta_t,PSD):
     sig2_f_conj = xp.conjugate(sig2_f)
     return prefac * xp.real(xp.sum((sig1_f * sig2_f_conj)/PSD))
 
-
 ##======================Likelihood and Posterior (change this)=====================
 
 def llike(params):
