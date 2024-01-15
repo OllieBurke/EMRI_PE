@@ -230,7 +230,7 @@ ntemps = 1             # Number of temperatures used for parallel tempering sche
 
 tempering_kwargs=dict(ntemps=ntemps)  # Sampler requires the number of temperatures as a dictionary
 
-d = 0 # A parameter that can be used to dictate how close we want to start to the true parameters
+d = 1 # A parameter that can be used to dictate how close we want to start to the true parameters
 # Useful check: If d = 0 and noise_f = 0, llike(*params)!!
 
 # We start the sampler exceptionally close to the true parameters and let it run. This is reasonable 
@@ -315,9 +315,17 @@ else:
 
 fp = "../data_files/test_few.h5"
 
-
 backend = HDFBackend(fp)
 
+ensemble = EnsembleSampler(
+                            nwalkers,          
+                            ndim,
+                            llike,
+                            priors,
+                            backend = backend,                 # Store samples to a .h5 file
+                            tempering_kwargs=tempering_kwargs,  # Allow tempering!
+                            moves = moves_stretch
+                            )
 Reset_Backend = True # NOTE: CAREFUL HERE. ONLY TO USE IF WE RESTART RUNS!!!!
 if Reset_Backend:
     os.remove(fp) # Manually get rid of backend
