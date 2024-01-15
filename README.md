@@ -35,10 +35,21 @@ A user can (understandably) build the various conda environments or, if they alr
 Run the following command:
 
 `
-salloc ...
+salloc -A lisa -N 1 -n 1 -c 20 --gres=gpu:1 --mem=20G -p gpu_a100 --qos=gpu_all -t 01:00:00
 `
 
-Assuming that everything has run smoothly, resources will be allocated to you. It may look like trexgpuX is available. You want to run the command `ssh trexgpuX` in order to gain access to that specific GPU. 
+Example output is 
+
+`
+salloc: Pending job allocation 4303336
+salloc: job 4303336 queued and waiting for resources
+salloc: job 4303336 has been allocated resources
+salloc: Granted job allocation 4303336
+salloc: Waiting for resource configuration
+salloc: Nodes trexgpu03 are ready for job
+`
+
+this is assuming that everything has run smoothly. In this case, trexgpu03 is available. You want to run the command `ssh trexgpu03` in order to gain access to that specific GPU. 
 
 Once you have entered the job, you want to run the following commands:
 
@@ -48,7 +59,7 @@ conda activate vanilla_few
 module load gcc
 module load cuda
 `
-Or, if you wish to be lazy, just type `source cluster_modules` and everything will be done for you.
+Or, if you wish to be lazy, just type `source cluster_modules` in the directory `setup_files` and everything will be done for you.
 
 ### Send the job to the cluster
 
