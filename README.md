@@ -22,12 +22,12 @@ The script `setup_file.sh` has been built for the lazy user in mind. Running `so
 1. Build an conda environment `EMRI_PE_env` with necessary python modules 
 2. Install a specific version of cupy for the GPUs here at CNES
 3. Install eryn, the sampler that I use for MCMC with EMRIs. 
-4. Create directory `Github_repos` to then clone (and install!) these three repositories 
-    a) [lisaAnalysistools](https://github.com/mikekatz04/LISAanalysistools.git)
-    b) [lisa-on-gpu](https://github.com/mikekatz04/lisa-on-gpu.git)
-    c) [FastEMRIWaveforms](https://github.com/BlackHolePerturbationToolkit/FastEMRIWaveforms.git)
+4. Create directory `Github_repos` to then clone (and install!) these three repositoriese
+-    [lisaAnalysistools](https://github.com/mikekatz04/LISAanalysistools.git) **[credit: Michael Katz]**
+-    [lisa-on-gpu](https://github.com/mikekatz04/lisa-on-gpu.git) **[credit: Michael Katz, Alvin Chua, Jean Baptiste-Bayle, Michele Valisneri]**
+-    [FastEMRIWaveforms](https://github.com/BlackHolePerturbationToolkit/FastEMRIWaveforms.git) **[credit: Michael Katz, Alvin Chua, Niels Warburton, Lorenzo Speri, Scott Hughes]**
 
-A user can (understandably) build the various conda environments or, if they already have FEW and lisa-on-gpu already on the cluster, they can just `python setup.py` install them separately.
+A user can (understandably) build the various conda environments or, if they already have FEW and lisa-on-gpu already on the cluster, they can just `python setup.py` install them separately. The code `source setup_file.sh` is used as a simple and quick way to get the EMRI code running. If the user would prefer a more manual installation, then go for it.
 
 ## Setting yourself up to run the code
 
@@ -93,11 +93,14 @@ The code has been set up such that only one file needs to be edited. This is `EM
 In `Cluster_sub/submit_job.sh`, there is a simple submit file one can use to submit jobs to the CNES clusters using the a100 GPUs. 
 
 
-
 ### Author
 
 Ollie Burke
+
 Laboratoire des deux infinis
+
 Toulouse
+
 France
+
 ollie.burke@l2it.in2p3.fr
