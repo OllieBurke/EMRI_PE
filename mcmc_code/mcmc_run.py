@@ -5,7 +5,8 @@ import sys
 sys.path.append("../")
 from EMRI_settings import (M, mu, a, p0, e0, Y0, 
                       dist, Phi_phi0, Phi_theta0, Phi_r0, qS, phiS, qK, phiK, 
-                      mich, T, inspiral_kwargs, sum_kwargs, xp, use_gpu, delta_t) 
+                      mich, T, inspiral_kwargs, sum_kwargs, amplitude_kwargs,xp, use_gpu, delta_t
+                      ) 
 
 from scipy.signal import tukey       # I'm always pro windowing.  
 
@@ -13,7 +14,7 @@ from lisatools.sensitivity import noisepsd_AE,noisepsd_T # Power spectral densit
 from fastlisaresponse import ResponseWrapper             # Response
 
 # Import relevant EMRI packages
-from few.waveform import Pn5AAKWaveform
+from few.waveform import GenerateEMRIWaveform
 from few.trajectory.inspiral import EMRIInspiral
 from few.utils.utility import get_separatrix, Y_to_xI, get_p_at_t
 
@@ -32,7 +33,7 @@ t0 = 20000.0   # How many samples to remove from start and end of simulations.
 order = 25
 
 #TODO: Need to figure out how to make this NOT hard coded.
-orbit_file_esa = "../Github_Repos/lisa-on-gpu/orbit_files/esa-trailing-orbits.h5"
+orbit_file_esa = "/home/ad/burkeol/work/Github_repositories/lisa-on-gpu/orbit_files/equalarmlength-trailing-fit.h5"
 orbit_kwargs_esa = dict(orbit_file=orbit_file_esa)
 
 # 1st or 2nd or custom (see docs for custom)
@@ -45,7 +46,7 @@ tdi_kwargs_esa = dict(
     orbit_kwargs=orbit_kwargs_esa, order=order, tdi=tdi_gen, tdi_chan="AET",
     )
 
-TDI_channels = ['TDIA','TDIE','TDIT']
+TDI_channels = ['TDIA','TDIE']
 N_channels = len(TDI_channels)
 
 def zero_pad(data):
@@ -84,21 +85,21 @@ def llike(params):
     a_val =  float(params[2])            
     p0_val = float(params[3])
     e0_val = float(params[4])
-    Y0_val = float(params[5])
+    Y0_val = 1.0 #float(params[5])
     
     # Luminosity distance 
-    D_val = float(params[6])
+    D_val = float(params[5])
 
     # Angular Parameters
-    qS_val = float(params[7])
-    phiS_val = float(params[8])
-    qK_val = float(params[9])
-    phiK_val = float(params[10])
+    qS_val = float(params[6])
+    phiS_val = float(params[7])
+    qK_val = float(params[8])
+    phiK_val = float(params[9])
 
     # Angular parameters
-    Phi_phi0_val = float(params[11])
-    Phi_theta0_val = float(params[12])
-    Phi_r0_val = float(params[13])
+    Phi_phi0_val = float(params[10])
+    Phi_theta0_val = Phi_theta0#float(params[12])
+    Phi_r0_val = float(params[11])
 
     # Propose new waveform model
     waveform_prop = EMRI_TDI(M_val, mu_val, a_val, p0_val, e0_val, 
@@ -123,15 +124,14 @@ def llike(params):
 
 ## ===================== CHECK TRAJECTORY ====================
 # 
-traj = EMRIInspiral(func="pn5")  # Set up trajectory module, pn5 AAK
+# traj = EMRIInspiral(func="pn5")  # Set up trajectory module, pn5 AAK
+traj = EMRIInspiral(func="KerrEccentricEquatorial")  # Set up trajectory module, pn5 AAK
 
 # Compute trajectory 
 t_traj, p_traj, e_traj, Y_traj, Phi_phi_traj, Phi_r_traj, Phi_theta_traj = traj(M, mu, a, p0, e0, Y0,
                                              Phi_phi0=Phi_phi0, Phi_theta0=Phi_theta0, Phi_r0=Phi_r0, T=T)
 
-x_I_traj = Y_to_xI(a, p_traj, e_traj, Y_traj)
-
-traj_args = [M, mu, a, e_traj[0], x_I_traj[0]]
+traj_args = [M, mu, a, e_traj[0], Y_traj[0]]
 index_of_p = 3
 
 # Check to see what value of semi-latus rectum is required to build inspiral lasting T years. 
@@ -145,7 +145,7 @@ p_new = get_p_at_t(
     index_of_x=5,
     xtol=2e-12,
     rtol=8.881784197001252e-16,
-    bounds=None,
+    bounds=[None, 12],
 )
 
 
@@ -156,14 +156,24 @@ if p0 < p_new:
 else:
     print("Body is not plunging.") 
 print("Final point in semilatus rectum achieved is", p_traj[-1])
-print("Separatrix : ", get_separatrix(a, e_traj[-1], x_I_traj[-1]))
+print("Separatrix : ", get_separatrix(a, e_traj[-1], Y_traj[-1]))
 
-# Construct the AAK model with 5PN trajectories
-AAK_waveform_model = Pn5AAKWaveform(inspiral_kwargs=inspiral_kwargs, sum_kwargs=sum_kwargs, use_gpu=use_gpu)
 
+model_choice = "Pn5AAKWaveform"
+model_choice = "FastSchwarzschildEccentricFlux"
+model_choice = "KerrEccentricEquatorialFlux"
+
+import time
+print("Now going to load in class")
+start = time.time()
+# Waveform_model = GenerateEMRIWaveform(model_choice, inspiral_kwargs=inspiral_kwargs, sum_kwargs=sum_kwargs, amplitude_kwargs=amplitude_kwargs, use_gpu=use_gpu)
+Waveform_model = GenerateEMRIWaveform(model_choice, inspiral_kwargs=inspiral_kwargs, sum_kwargs=sum_kwargs, use_gpu=use_gpu)
+end = time.time() - start
+
+print("It took",end," seconds to load in the waveform")
 ####=======================True Responsed waveform==========================
 # Build the response wrapper
-EMRI_TDI = ResponseWrapper(AAK_waveform_model,T,delta_t,
+EMRI_TDI = ResponseWrapper(Waveform_model,T,delta_t,
                           index_lambda,index_beta,t0=t0,
                           flip_hx = True, use_gpu = use_gpu, is_ecliptic_latitude=False,
                           remove_garbage = "zero", **tdi_kwargs_esa)
@@ -259,9 +269,11 @@ start_Phi_theta0 = Phi_theta0*(1. + d * 1e-6 * np.random.randn(nwalkers, 1))
 start_Phi_r0 = Phi_r0*(1. + d * 1e-6 * np.random.randn(nwalkers, 1))
 
 # Set up starting coordinates
-start = np.hstack((start_M,start_mu, start_a, start_p0, start_e0, start_Y0, start_D, 
-start_qS, start_phiS, start_qK, start_phiK,start_Phi_Phi0, start_Phi_theta0, start_Phi_r0))
+# start = np.hstack((start_M,start_mu, start_a, start_p0, start_e0, start_Y0, start_D, 
+# start_qS, start_phiS, start_qK, start_phiK,start_Phi_Phi0, start_Phi_theta0, start_Phi_r0))
 
+start = np.hstack((start_M,start_mu, start_a, start_p0, start_e0, start_D, 
+start_qS, start_phiS, start_qK, start_phiK,start_Phi_Phi0, start_Phi_r0))
 if ntemps > 1:
     # If we decide to use parallel tempering, we fall into this if statement. We assign each *group* of walkers
     # an associated temperature. We take the original starting values and "stack" them on top of each other. 
@@ -278,6 +290,25 @@ n = 25 # size of prior
 
 Delta_theta_intrinsic = [100, 1e-3, 1e-4, 1e-4, 1e-4, 1e-4]  # M, mu, a, p0, e0 Y0
 Delta_theta_D = dist/np.sqrt(np.sum(SNR))
+# priors_in = {
+#     # Intrinsic parameters
+#     0: uniform_dist(M - n*Delta_theta_intrinsic[0], M + n*Delta_theta_intrinsic[0]), # Primary Mass M
+#     1: uniform_dist(mu - n*Delta_theta_intrinsic[1], mu + n*Delta_theta_intrinsic[1]), # Secondary Mass mu
+#     2: uniform_dist(a - n*Delta_theta_intrinsic[2], a + n*Delta_theta_intrinsic[2]), # Spin parameter a
+#     3: uniform_dist(p0 - n*Delta_theta_intrinsic[3], p0 + n*Delta_theta_intrinsic[3]), # semi-latus rectum p0
+#     4: uniform_dist(e0 - n*Delta_theta_intrinsic[4], e0 + n*Delta_theta_intrinsic[4]), # eccentricity e0
+#     5: uniform_dist(Y0 - n*Delta_theta_intrinsic[5], Y0 + n*Delta_theta_intrinsic[5]), # Cosine of inclination (Y0 = cos(iota0))
+#     6: uniform_dist(dist - n*Delta_theta_D, dist + n* Delta_theta_D), # distance D
+#     # Extrinsic parameters -- Angular parameters
+#     7: uniform_dist(0, np.pi), # Polar angle (sky position)
+#     8: uniform_dist(0, 2*np.pi), # Azimuthal angle (sky position)
+#     9: uniform_dist(0, np.pi),  # Polar angle (spin vec)
+#     10: uniform_dist(0, 2*np.pi), # Azimuthal angle (spin vec)
+#     # Initial phases
+#     11: uniform_dist(0, 2*np.pi), # Phi_phi0
+#     12: uniform_dist(0, 2*np.pi), # Phi_theta0
+#     13: uniform_dist(0, 2*np.pi) # Phi_r00
+# }  
 priors_in = {
     # Intrinsic parameters
     0: uniform_dist(M - n*Delta_theta_intrinsic[0], M + n*Delta_theta_intrinsic[0]), # Primary Mass M
@@ -285,17 +316,15 @@ priors_in = {
     2: uniform_dist(a - n*Delta_theta_intrinsic[2], a + n*Delta_theta_intrinsic[2]), # Spin parameter a
     3: uniform_dist(p0 - n*Delta_theta_intrinsic[3], p0 + n*Delta_theta_intrinsic[3]), # semi-latus rectum p0
     4: uniform_dist(e0 - n*Delta_theta_intrinsic[4], e0 + n*Delta_theta_intrinsic[4]), # eccentricity e0
-    5: uniform_dist(Y0 - n*Delta_theta_intrinsic[5], Y0 + n*Delta_theta_intrinsic[5]), # Cosine of inclination (Y0 = cos(iota0))
-    6: uniform_dist(dist - n*Delta_theta_D, dist + n* Delta_theta_D), # distance D
+    5: uniform_dist(dist - n*Delta_theta_D, dist + n* Delta_theta_D), # distance D
     # Extrinsic parameters -- Angular parameters
-    7: uniform_dist(0, np.pi), # Polar angle (sky position)
-    8: uniform_dist(0, 2*np.pi), # Azimuthal angle (sky position)
-    9: uniform_dist(0, np.pi),  # Polar angle (spin vec)
-    10: uniform_dist(0, 2*np.pi), # Azimuthal angle (spin vec)
+    6: uniform_dist(0, np.pi), # Polar angle (sky position)
+    7: uniform_dist(0, 2*np.pi), # Azimuthal angle (sky position)
+    8: uniform_dist(0, np.pi),  # Polar angle (spin vec)
+    9: uniform_dist(0, 2*np.pi), # Azimuthal angle (spin vec)
     # Initial phases
-    11: uniform_dist(0, 2*np.pi), # Phi_phi0
-    12: uniform_dist(0, 2*np.pi), # Phi_theta0
-    13: uniform_dist(0, 2*np.pi) # Phi_r00
+    10: uniform_dist(0, 2*np.pi), # Phi_phi0
+    11: uniform_dist(0, 2*np.pi) # Phi_r00
 }  
 
 priors = ProbDistContainer(priors_in, use_cupy = False)   # Set up priors so they can be used with the sampler.
@@ -313,7 +342,7 @@ if ntemps > 1:
 else:
     print("Value of starting log-likelihood points", llike(start[0])) 
 
-fp = "../data_files/test_few.h5"
+fp = "../data_files/kerr_eq_ecc_a0p0_M1e6_mu10_e0_0p2_p0_10p68_SNR_22.h5"
 
 backend = HDFBackend(fp)
 
